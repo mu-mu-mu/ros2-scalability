@@ -3,12 +3,12 @@ import launch_ros.actions
 
 def generate_launch_description():
     talker = launch_ros.actions.Node(
-        package='template',
+        package='tmpl',
         executable='talker',
         output='screen',
     )
     listener = launch_ros.actions.Node(
-        package='template',
+        package='tmpl',
         executable='listener',
         output='screen',
     )

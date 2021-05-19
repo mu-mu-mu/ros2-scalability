@@ -1,18 +1,10 @@
 cmake_minimum_required(VERSION 3.5)
-project(template)
+project(tmpl)
 
-# Default to C99
-if(NOT CMAKE_C_STANDARD)
-  set(CMAKE_C_STANDARD 99)
-endif()
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
-endif()
-
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
 # find dependencies
@@ -22,6 +14,10 @@ find_package(std_msgs REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+ament_export_include_directories(include)
+ament_export_dependencies(rosidl_default_runtime)
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -34,11 +30,19 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/Payload.msg"
+ )
+
 add_executable(talker src/pub.cpp)
 ament_target_dependencies(talker rclcpp std_msgs)
+rosidl_target_interfaces(talker
+  ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
 add_executable(listener src/sub.cpp)
 ament_target_dependencies(listener rclcpp std_msgs)
+rosidl_target_interfaces(listener
+  ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
 # add_executable(tl src/pubsub.cpp)
 # ament_target_dependencies(tl rclcpp std_msgs)

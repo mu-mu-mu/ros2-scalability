@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 
+#include "common.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 

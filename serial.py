@@ -21,6 +21,7 @@ except:
     sys.exit(1)
 
 os.mkdir(project_dir+"/src")
+os.mkdir(project_dir+"/msg")
 os.mkdir(project_dir+"/launch")
 os.mkdir(project_dir+"/include")
 
@@ -28,7 +29,8 @@ os.mkdir(project_dir+"/include")
 def copy_file(fname):
     shutil.copyfile(template_dir + "/" + fname, project_dir + "/" + fname)
 
-copy_file("include/pubsub.h")
+copy_file("include/pubsub.hpp")
+copy_file("msg/Payload.msg")
 copy_file("src/pub.cpp")
 copy_file("src/sub.cpp")
 
@@ -36,6 +38,9 @@ copy_file("src/sub.cpp")
 # CMakeLists.txt
 cmake_exec = """add_executable(tl{0} src/pubsub{0}.cpp)
 ament_target_dependencies(tl{0} rclcpp std_msgs)
+rosidl_target_interfaces(tl{0}
+  ${{PROJECT_NAME}} "rosidl_typesupport_cpp")
+
 """
 cmake_dep = """  tl{0}
 """
@@ -48,7 +53,7 @@ with open(template_dir + "/CMakeLists.txt","r") as t:
             elif "DEP HERE" in line:
                 for i in range(nodes_num):
                     p.write(cmake_dep.format(str(i)))
-            elif "template" in line:
+            elif "tmpl" in line:
                 p.write("project({0})".format(project))
             else:
                 p.write(line)
@@ -70,7 +75,7 @@ with open(template_dir + "/launch/launch.py","r") as t:
             if "HERE" in line:
                 for i in range(nodes_num):
                     p.write(launch_tl.format(project,str(i)))
-            elif "template" in line:
+            elif "tmpl" in line:
                 p.write(launch_package.format(project))
             else:
                 p.write(line)
@@ -82,8 +87,20 @@ package_name = """
 with open(template_dir + "/package.xml","r") as t:
     with open(project_dir + "/package.xml","w") as p:
         for line in t.readlines():
-            if "template" in line:
+            if "tmpl" in line:
                 p.write(package_name.format(project))
+            else:
+                p.write(line)
+
+# common.h
+common_include = """
+#include "{0}/msg/payload.hpp"
+"""
+with open(template_dir + "/include/common.hpp","r") as t:
+    with open(project_dir + "/include/common.hpp","w") as p:
+        for line in t.readlines():
+            if "tmpl" in line:
+                p.write(common_include.format(project))
             else:
                 p.write(line)
 

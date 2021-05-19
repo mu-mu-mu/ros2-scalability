@@ -2,6 +2,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
+#include "common.hpp"
 using std::placeholders::_1;
 
 class MinimalSubscriber : public rclcpp::Node
