@@ -7,7 +7,6 @@ using std::placeholders::_1;
 using namespace std::chrono_literals;
 
 #include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
 #include "pubsub.hpp"
 
 

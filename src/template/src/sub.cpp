@@ -1,9 +1,12 @@
 #include <memory>
+#include <chrono>
 
 #include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
 #include "common.hpp"
 using std::placeholders::_1;
+
+using namespace std::chrono;
+using namespace std::chrono_literals;
 
 class MinimalSubscriber : public rclcpp::Node
 {
@@ -11,16 +14,19 @@ class MinimalSubscriber : public rclcpp::Node
     MinimalSubscriber()
     : Node("sub")
     {
-      subscription_ = this->create_subscription<std_msgs::msg::String>(
+      subscription_ = this->create_subscription<Payload>(
       "topic_end", 10, std::bind(&MinimalSubscriber::topic_callback, this, _1));
     }
 
   private:
-    void topic_callback(const std_msgs::msg::String::SharedPtr msg) const
+    void topic_callback(const Payload::SharedPtr msg) const
     {
-      RCLCPP_INFO(this->get_logger(), "I heard: '%s'", msg->data.c_str());
+      auto now = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch());
+      auto delta = now.count() - msg->time;
+
+      RCLCPP_INFO(this->get_logger(), "Subscribed %d", delta);
     }
-    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription_;
+    rclcpp::Subscription<Payload>::SharedPtr subscription_;
 };
 
 int main(int argc, char * argv[])

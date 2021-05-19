@@ -96,11 +96,17 @@ with open(template_dir + "/package.xml","r") as t:
 common_include = """
 #include "{0}/msg/payload.hpp"
 """
+
+common_namespace = """
+using namespace {0}::msg;
+"""
 with open(template_dir + "/include/common.hpp","r") as t:
     with open(project_dir + "/include/common.hpp","w") as p:
         for line in t.readlines():
-            if "tmpl" in line:
+            if r"tmpl/msg" in line:
                 p.write(common_include.format(project))
+            elif r"tmpl::msg" in line:
+                p.write(common_namespace.format(project))
             else:
                 p.write(line)
 
