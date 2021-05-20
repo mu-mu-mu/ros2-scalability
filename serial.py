@@ -65,7 +65,7 @@ launch_package = """
 launch_tl = """
     tl.append(launch_ros.actions.Node(
         package='{0}',
-        executable='tl{1}',
+        node_executable='tl{1}',
         output='screen',
     ))
 """
