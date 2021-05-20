@@ -12,7 +12,7 @@ class MinimalSubscriber : public rclcpp::Node
 {
   public:
     MinimalSubscriber()
-    : Node("sub")
+    : Node("sub"), _count(0)
     {
       subscription_ = this->create_subscription<Payload>(
       "topic_end", 10, std::bind(&MinimalSubscriber::topic_callback, this, _1));
@@ -25,8 +25,13 @@ class MinimalSubscriber : public rclcpp::Node
       auto delta = now.count() - msg->time;
 
       RCLCPP_INFO(this->get_logger(), "Subscribed %d", delta);
+
+      if (_count >= MAX_COUNT) {
+        rclcpp::shutdown();
+      }
     }
     rclcpp::Subscription<Payload>::SharedPtr subscription_;
+    int _count;
 };
 
 int main(int argc, char * argv[])

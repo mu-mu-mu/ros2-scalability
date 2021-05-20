@@ -22,14 +22,18 @@ class PubSub : public rclcpp::Node
     }
 
   private:
-    void topic_callback(const Payload::SharedPtr msg) const
+    void topic_callback(const Payload::SharedPtr msg)
     {
       auto message = Payload();
       message.time = msg->time;
       publisher_->publish(message);
+      if (count_ >= MAX_COUNT) {
+        rclcpp::shutdown();
+      }
+      count_++;
     }
 
     rclcpp::Subscription<Payload>::SharedPtr subscription_;
     rclcpp::Publisher<Payload>::SharedPtr publisher_;
-    size_t count_;
+    int count_;
 };
