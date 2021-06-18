@@ -1,0 +1,48 @@
+import sys
+import glob
+import re
+from statistics import mean
+import matplotlib.pyplot as plt
+
+fig, ax1 = plt.subplots()
+
+if len(sys.argv) == 1:
+    print("plot.py dir1 dir2 ...")
+    sys.exit(1)
+
+for i,fname in enumerate(sys.argv[1:]):
+    x = []
+    y1 = []
+    y2 = []
+
+    files = glob.glob(fname + "/data*")
+    for f in files:
+        num = int(re.search(r"\d+$",f).group())
+        with open(f,"r") as fd:
+            res1 = []
+            res2 = []
+            print(f)
+            for l in fd.readlines():
+                if "packets sent" in l:
+                    res1.append(int(re.search(r"\d+",l).group()))
+                    print(res1[-1])
+
+            if res1 == []:
+                continue
+            y1.append(abs(res1[0] - res1[1])/10e3)
+        x.append(num)
+
+    t1 = list(zip(x,y1))
+    t1.sort()
+    a1,b1 = zip(*t1)
+    ll = ["20%", "40%", "60%", "80%", "75%"]
+
+    ax1.plot(a1,b1,linestyle = "solid", label="CPU : "+ll[i])
+
+ax1.set_xlabel("# Nodes", size = 24)
+ax1.set_ylabel("UDP Packets (K)", size = 24)
+h1, l1 = ax1.get_legend_handles_labels()
+ax1.legend(h1, l1, loc='best',fontsize=20,ncol=1)
+ax1.tick_params(axis='x', labelsize=22)
+ax1.tick_params(axis='y', labelsize=22)
+plt.show()
