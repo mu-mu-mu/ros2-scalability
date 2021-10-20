@@ -4,13 +4,19 @@ import shutil
 
 template_dir = "src/template"
 
-if len(sys.argv) != 3:
-    print("serial.py project_name #nodes ")
+if len(sys.argv) != 4:
+    print("serial.py project_name #nodes <msg size(bytes,1K,1M)>")
     sys.exit(1)
 
 project = sys.argv[1]
 project_dir = "src/" + project
 nodes_num = int(sys.argv[2])
+if sys.argv[3] in ["1M", "1m", "1mb", "1MB"]:
+    msg_size = 1024 * 1024
+elif sys.argv[3] in ["1K", "1k", "1kb", "1KB"]:
+    msg_size = 1024
+else:
+    msg_size = int(sys.argv[3])
 
 
 # Make directories
@@ -30,10 +36,15 @@ def copy_file(fname):
     shutil.copyfile(template_dir + "/" + fname, project_dir + "/" + fname)
 
 copy_file("include/pubsub.hpp")
-copy_file("msg/Payload.msg")
 copy_file("src/pub.cpp")
 copy_file("src/sub.cpp")
 
+# Payload.msg
+with open(template_dir + "/msg/Payload.msg","r") as t:
+    with open(project_dir + "/msg/Payload.msg","w") as p:
+        for line in t.readlines():
+            p.write(line)
+        p.write("char[{}] chunk".format(msg_size))
 
 # CMakeLists.txt
 cmake_exec = """add_executable(tl{0} src/pubsub{0}.cpp)
