@@ -14,8 +14,15 @@ class MinimalSubscriber : public rclcpp::Node
     MinimalSubscriber()
     : Node("sub"), _count(0)
     {
+      rclcpp::QoS qos = rclcpp::QoS(rclcpp::KeepLast(10)).reliable();
+
+      this->declare_parameter("qos");
+      std::string rel = this->get_parameter("qos").as_string();
+      if(rel == "best_effort")
+        qos = rclcpp::QoS(rclcpp::KeepLast(10)).best_effort();
+
       subscription_ = this->create_subscription<Payload>(
-      "topic_end", 10, std::bind(&MinimalSubscriber::topic_callback, this, _1));
+      "topic_end", qos, std::bind(&MinimalSubscriber::topic_callback, this, _1));
     }
 
   private:

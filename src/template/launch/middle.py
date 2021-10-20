@@ -9,19 +9,6 @@ def generate_launch_description():
         "qos", default_value=TextSubstitution(text="reliable")
     )
 
-    talker = launch_ros.actions.Node(
-        package='tmpl',
-        node_executable='talker',
-        output='screen',
-        parameters=[{ "qos": LaunchConfiguration("qos") }],
-    )
-    listener = launch_ros.actions.Node(
-        package='tmpl',
-        node_executable='listener',
-        output='screen',
-        parameters=[{ "qos": LaunchConfiguration("qos") }],
-    )
-
     tl = []
     # HERE
 
@@ -34,7 +21,5 @@ def generate_launch_description():
 
     return launch.LaunchDescription([
         qos_arg,
-        talker,
         *tl,
-        listener
     ])

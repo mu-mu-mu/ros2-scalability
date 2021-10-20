@@ -16,9 +16,16 @@ class PubSub : public rclcpp::Node
     PubSub(string node_name, string sub_topic, string pub_topic)
     : Node(node_name), count_(0)
     {
-      publisher_ = this->create_publisher<Payload>(pub_topic, 100);
+      rclcpp::QoS qos = rclcpp::QoS(rclcpp::KeepLast(10)).reliable();
+
+      this->declare_parameter("qos");
+      std::string rel = this->get_parameter("qos").as_string();
+      if(rel == "best_effort")
+        qos = rclcpp::QoS(rclcpp::KeepLast(10)).best_effort();
+
+      publisher_ = this->create_publisher<Payload>(pub_topic, qos);
       subscription_ = this->create_subscription<Payload>(
-      sub_topic, 10, std::bind(&PubSub::topic_callback, this, _1));
+      sub_topic, qos, std::bind(&PubSub::topic_callback, this, _1));
     }
 
   private:

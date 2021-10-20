@@ -38,7 +38,6 @@ def copy_file(fname):
 copy_file("include/pubsub.hpp")
 copy_file("src/pub.cpp")
 copy_file("src/sub.cpp")
-copy_file("launch/ends.py")
 
 # Payload.msg
 with open(template_dir + "/msg/Payload.msg","r") as t:
@@ -79,6 +78,7 @@ launch_tl = """
         package='{0}',
         node_executable='tl{1}',
         output='screen',
+        parameters=[{{ "qos": LaunchConfiguration("qos") }}],
     ))
 """
 with open(template_dir + "/launch/all.py","r") as t:
@@ -88,6 +88,23 @@ with open(template_dir + "/launch/all.py","r") as t:
                 for i in range(nodes_num):
                     p.write(launch_tl.format(project,str(i)))
             elif "tmpl" in line:
+                p.write(launch_package.format(project))
+            else:
+                p.write(line)
+
+with open(template_dir + "/launch/middle.py","r") as t:
+    with open(project_dir + "/launch/middle.py","w") as p:
+        for line in t.readlines():
+            if "HERE" in line:
+                for i in range(nodes_num):
+                    p.write(launch_tl.format(project,str(i)))
+            else:
+                p.write(line)
+
+with open(template_dir + "/launch/ends.py","r") as t:
+    with open(project_dir + "/launch/ends.py","w") as p:
+        for line in t.readlines():
+            if "tmpl" in line:
                 p.write(launch_package.format(project))
             else:
                 p.write(line)

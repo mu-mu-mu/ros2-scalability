@@ -19,7 +19,14 @@ class MinimalPublisher : public rclcpp::Node
     MinimalPublisher()
     : Node("pub"), count_(0)
     {
-      publisher_ = this->create_publisher<Payload>("topic_start", 100);
+      rclcpp::QoS qos = rclcpp::QoS(rclcpp::KeepLast(10)).reliable();
+
+      this->declare_parameter("qos");
+      std::string rel = this->get_parameter("qos").as_string();
+      if(rel == "best_effort")
+        qos = rclcpp::QoS(rclcpp::KeepLast(10)).best_effort();
+
+      publisher_ = this->create_publisher<Payload>("topic_start", qos);
       timer_ = this->create_wall_timer(
       200ms, std::bind(&MinimalPublisher::timer_callback, this));
     }
