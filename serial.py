@@ -38,6 +38,7 @@ def copy_file(fname):
 copy_file("include/pubsub.hpp")
 copy_file("src/pub.cpp")
 copy_file("src/sub.cpp")
+copy_file("launch/ends.py")
 
 # Payload.msg
 with open(template_dir + "/msg/Payload.msg","r") as t:
@@ -80,8 +81,8 @@ launch_tl = """
         output='screen',
     ))
 """
-with open(template_dir + "/launch/launch.py","r") as t:
-    with open(project_dir + "/launch/launch.py","w") as p:
+with open(template_dir + "/launch/all.py","r") as t:
+    with open(project_dir + "/launch/all.py","w") as p:
         for line in t.readlines():
             if "HERE" in line:
                 for i in range(nodes_num):
