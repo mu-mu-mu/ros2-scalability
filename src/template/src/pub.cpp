@@ -2,6 +2,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <sched.h>
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -21,7 +22,7 @@ class MinimalPublisher : public rclcpp::Node
     {
       publisher_ = this->create_publisher<Payload>("topic_start", 100);
       timer_ = this->create_wall_timer(
-      200ms, std::bind(&MinimalPublisher::timer_callback, this));
+      500ms, std::bind(&MinimalPublisher::timer_callback, this));
     }
 
   private:
@@ -29,8 +30,15 @@ class MinimalPublisher : public rclcpp::Node
     {
       auto message = Payload();
 
+
       auto now = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch());
       message.time = now.count();
+      message.pubcore = sched_getcpu();
+      for(int i=0; i < MAX_LEN; i++) {
+	      message.tlcore[i] = -1;
+      }
+
+
 
       //message.data = "Hello, world! " + std::to_string(count_++);
       RCLCPP_INFO(this->get_logger(), "Published");

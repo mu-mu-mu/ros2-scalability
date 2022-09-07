@@ -3,6 +3,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <sched.h>
 
 #include "common.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -26,6 +27,17 @@ class PubSub : public rclcpp::Node
     {
       auto message = Payload();
       message.time = msg->time;
+      message.pubcore = msg->pubcore;
+      message.tlcore = msg->tlcore;
+      message.subcore = msg->subcore;
+
+      for(int i =0; i < MAX_LEN; i++) {
+	      if(message.tlcore[i] == -1) {
+		      message.tlcore[i] = sched_getcpu();
+		      break;
+	      }
+      }
+
       publisher_->publish(message);
       if (count_ >= MAX_COUNT) {
         rclcpp::shutdown();
