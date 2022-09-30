@@ -55,6 +55,18 @@ class MinimalSubscriber : public rclcpp::Node
       snprintf(buff, sizeof(buff), "%ld", now.count() - msg->tltime[i-1]);
       res += buff;
 
+      res += " || ";
+
+      for(i = 0; i < MAX_LEN; i++) {
+	      char buff[100];
+	      if(msg->tlcore[i] == -1) break;
+
+	      snprintf(buff, sizeof(buff), "%ld ", msg->tlherz[i]);
+	      std::string buffs = buff;
+	      res += buffs;
+      }
+
+
       RCLCPP_INFO(this->get_logger(), "%s", res.c_str());
 
       if (_count >= MAX_COUNT) {
