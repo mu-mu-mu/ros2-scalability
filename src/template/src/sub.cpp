@@ -21,20 +21,40 @@ class MinimalSubscriber : public rclcpp::Node
   private:
     void topic_callback(const Payload::SharedPtr msg) const
     {
+      int i;
       auto now = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch());
       auto delta = now.count() - msg->time;
 
       char buff[100];
-      snprintf(buff, sizeof(buff), "Subscribed %ld || ",delta/(1000*1000));
+      snprintf(buff, sizeof(buff), "Subscribed %ld || ",delta/(1000));
       std::string res = buff;
 
-      for(int i = 0; i < MAX_LEN; i++) {
+      for(i = 0; i < MAX_LEN; i++) {
 	      char buff[100];
 	      if(msg->tlcore[i] == -1) break;
 	      snprintf(buff, sizeof(buff), "%ld ", msg->tlcore[i]);
 	      std::string buffs = buff;
 	      res += buffs;
       }
+      
+      res += " || ";
+
+      for(i = 0; i < MAX_LEN; i++) {
+	      char buff[100];
+	      if(msg->tlcore[i] == -1) break;
+
+	      auto d = now.count() - msg->time;
+	      if(i == 0) d = msg->tltime[i] - msg->time;
+	      else d = msg->tltime[i] - msg->tltime[i-1] ;
+
+	      snprintf(buff, sizeof(buff), "%ld ", d);
+	      std::string buffs = buff;
+	      res += buffs;
+      }
+
+      snprintf(buff, sizeof(buff), "%ld", now.count() - msg->tltime[i-1]);
+      res += buff;
+
       RCLCPP_INFO(this->get_logger(), "%s", res.c_str());
 
       if (_count >= MAX_COUNT) {

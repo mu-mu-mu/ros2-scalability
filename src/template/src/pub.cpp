@@ -22,7 +22,7 @@ class MinimalPublisher : public rclcpp::Node
     {
       publisher_ = this->create_publisher<Payload>("topic_start", 100);
       timer_ = this->create_wall_timer(
-      500ms, std::bind(&MinimalPublisher::timer_callback, this));
+      1000ms, std::bind(&MinimalPublisher::timer_callback, this));
     }
 
   private:
@@ -30,18 +30,17 @@ class MinimalPublisher : public rclcpp::Node
     {
       auto message = Payload();
 
-
-      auto now = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch());
-      message.time = now.count();
       message.pubcore = sched_getcpu();
       for(int i=0; i < MAX_LEN; i++) {
 	      message.tlcore[i] = -1;
       }
 
-
-
       //message.data = "Hello, world! " + std::to_string(count_++);
       RCLCPP_INFO(this->get_logger(), "Published");
+
+      auto now = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch());
+      message.time = now.count();
+
       publisher_->publish(message);
       if (count_ >= MAX_COUNT) {
         rclcpp::shutdown();

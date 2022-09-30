@@ -9,6 +9,7 @@
 #include "rclcpp/rclcpp.hpp"
 
 using std::placeholders::_1;
+using namespace std::chrono;
 using namespace std::chrono_literals;
 using namespace std;
 class PubSub : public rclcpp::Node
@@ -25,8 +26,11 @@ class PubSub : public rclcpp::Node
   private:
     void topic_callback(const Payload::SharedPtr msg)
     {
+
       auto message = Payload();
+
       message.time = msg->time;
+      message.tltime = msg->tltime;
       message.pubcore = msg->pubcore;
       message.tlcore = msg->tlcore;
       message.subcore = msg->subcore;
@@ -34,9 +38,12 @@ class PubSub : public rclcpp::Node
       for(int i =0; i < MAX_LEN; i++) {
 	      if(message.tlcore[i] == -1) {
 		      message.tlcore[i] = sched_getcpu();
+		      auto now = duration_cast<nanoseconds>(high_resolution_clock::now().time_since_epoch());
+		      message.tltime[i] = now.count();
 		      break;
 	      }
       }
+
 
       publisher_->publish(message);
       if (count_ >= MAX_COUNT) {
